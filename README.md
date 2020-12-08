@@ -56,3 +56,14 @@ to local files. Process css files exctracting new resource and converting
 url's. Possibility to replace javascript and html files using custom
 substitutions. Full Unicode/UTF-8 support.
 ```
+# Скрипт для скачивания веб-страницы со всеми ресурсами (html/css/js/картинки/...)
+## Установка и запуск
+```
+1. Скачать и установить python 3.9.1
+2. Склонируйте этот репозиторий и перейдите в корень папки
+3. Установите все пакеты из файла 'requirements' (команда для установки пакета: pip install <наимен_пакета>)
+4. Запуск скрипта: 
+python save_webpage.py http://awebmaster.ru --output awebmaster_dist
+
+В результате рядом со скриптом появится папка awebmaster_dist с содержимым веб-страницы
+```
