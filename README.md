@@ -4,6 +4,9 @@
 UPD1: Updated packages copatible with Python 3.9.1
 UPD2: Stubbed encoding for CSS files (utf-8)
 ```
+```
+Описание на русском в конце страницы
+```
 
 ## Install and Use
 
