@@ -9,8 +9,7 @@ import os
 import sys
 import re
 import base64
-import urlparse
-import urllib2
+
 import urllib
 import json
 import argparse
@@ -24,6 +23,7 @@ import chardet
 from bs4 import BeautifulSoup
 import requests
 import tldextract
+from urllib.parse import urlparse
 
 __all__ = ['Save_Webpage']
 
@@ -128,7 +128,7 @@ ATTRS_WITH_EXTERNAL_RESOURCES = {
 
 
 def is_absolute_url(url):
-    return bool(urlparse.urlparse(url).netloc)
+    return bool(urlparse(url).netloc)
 
 def is_absolute_url2(url):
     return re.match(r"""^                    # At the start of the string, ...
@@ -197,9 +197,9 @@ def is_subpath(path, parent):
 
 
 def absurl(base_url, url):
-    parsed_url = urlparse.urlparse(urlparse.urljoin(base_url, url))
+    parsed_url = urlparse(urllib.parse.urljoin(base_url, url))
     # netloc contains basic auth, so do not use domain
-    return urlparse.urlunsplit((
+    return urllib.parse.urlunsplit((
                                 parsed_url.scheme,
                                 parsed_url.netloc,
                                 parsed_url.path,
@@ -295,15 +295,7 @@ def detect_encoding_from_http_response(response, filetype=None, search_entire_do
                 return None
 
     elif filetype == CSS_FILE:
-        css_encoding_match = CSS_CHARSET_RE.search(content)
-        if css_encoding_match:
-            encoding = css_encoding_match.group(1)
-            encoding = normalize_codec_name(encoding)
-
-            if try_decoding(content, encoding):
-                return encoding
-            else:
-                return None
+        return "utf-8"
 
     detected_encoding = chardet.detect(content)
 
@@ -336,7 +328,7 @@ def download_content(url):
 
 
 def resource_type_using_extension(url):
-    url_path = urlparse.urlparse(url).path
+    url_path = urlparse(url).path
     url_path = url_path.lower()
 
     if url_path.endswith('.html') or url_path.endswith('.htm'):
@@ -543,7 +535,7 @@ class Save_Webpage(object):
 
         if output is None:
             url = list_of_seed_urls[0]
-            output = os.path.join(os.getcwd(), urlparse.urlparse(url).netloc)
+            output = os.path.join(os.getcwd(), urlparse(url).netloc)
         else:
             if not os.path.isabs(output):
                 output = os.path.join(os.getcwd(), output)
@@ -589,19 +581,19 @@ class Save_Webpage(object):
         if url.startswith("//"):
             url = "http:" + url
 
-        parsed_url = urlparse.urlparse(url)
+        parsed_url = urlparse(url)
 
         url_path = parsed_url.path
-        url_path = urllib.quote(url_path, safe="%/:=&?~#+!$,;'@()*[]")
+        url_path = urllib.parse.quote(url_path, safe="%/:=&?~#+!$,;'@()*[]")
 
-        url = urlparse.urlunparse((parsed_url.scheme, parsed_url.netloc, url_path, "", "", ""))
+        url = urllib.parse.urlunparse((parsed_url.scheme, parsed_url.netloc, url_path, "", "", ""))
         url = urltools.normalize(url)
 
         return url
 
     @staticmethod
     def _path_to_resource_file(url, output, index_html):
-        parsed_url = urlparse.urlparse(url)
+        parsed_url = urlparse(url)
         url_path = parsed_url.path
         url_path = url_path.lstrip("/")
 
@@ -611,7 +603,7 @@ class Save_Webpage(object):
             if url_path.endswith("/"):
                 url_path += index_html
 
-        relative_path_to_resource_file = urllib.url2pathname(url_path)
+        relative_path_to_resource_file = urllib.request.url2pathname(url_path)
         path_to_resource_file = os.path.join(output, relative_path_to_resource_file)
 
         return path_to_resource_file
@@ -619,7 +611,7 @@ class Save_Webpage(object):
     def _replace_content(self, current_url, content):
         if not self._replacements: return content
 
-        url_path = urlparse.urlparse(current_url).path
+        url_path = urlparse(current_url).path
 
         for pattern_url_path, list_of_replacement_objs in self._replacements:
             is_url_matched = re.match(pattern_url_path, url_path)
@@ -664,10 +656,10 @@ class Save_Webpage(object):
 
         if self._mode == self.ABSOLUTE_MODE:
             if is_absolute_url2(original_url):
-                parsed_original_url = urlparse.urlparse(original_url)
+                parsed_original_url = urlparse(original_url)
 
-                url = urlparse.urljoin(self._base_url,
-                                       urlparse.urlunparse((
+                url = urllib.parse.urljoin(self._base_url,
+                                       urllib.parse.urlunparse((
                                                            "",
                                                            "",
                                                            parsed_original_url.path,
@@ -676,14 +668,14 @@ class Save_Webpage(object):
                                                            parsed_original_url.fragment))
                                       )
             else:
-                url = urlparse.urljoin(self._base_url, original_url)
+                url = urllib.parse.urljoin(self._base_url, original_url)
 
         elif self._mode == self.RELATIVE_MODE:
             if is_absolute_url2(original_url):
-                parsed_original_url = urlparse.urlparse(original_url)
+                parsed_original_url = urlparse(original_url)
 
-                url_path = relurl_path(urlparse.urlparse(base_url).path, parsed_original_url.path)
-                url = urlparse.urlunparse((
+                url_path = relurl_path(urlparse(base_url).path, parsed_original_url.path)
+                url = urllib.parse.urlunparse((
                                    "",
                                    "",
                                    url_path,
@@ -734,7 +726,7 @@ class Save_Webpage(object):
                 if html_base:
                     base_url = html_base["href"]
                     if not is_absolute_url2(base_url):
-                        base_url = urlparse.urljoin(url, base_url)
+                        base_url = urllib.parse.urljoin(url, base_url)
                 else:
                     base_url = url
 
@@ -771,7 +763,7 @@ class Save_Webpage(object):
             elif type_of_resource == JS_FILE:
                 content = self._replace_content(url, content)
 
-            with open(path_to_resource_file, "w") as f:
+            with open(path_to_resource_file, "wb") as f:
                 f.write(content)
 
 

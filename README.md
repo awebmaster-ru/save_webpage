@@ -1,4 +1,19 @@
-# save_webpage
+# save_webpage (fork by awebmaster)
+
+```
+UPD1: Updated packages copatible with Python 3.9.1
+UPD2: Stubbed encoding for CSS files (utf-8)
+```
+
+## Install and Use
+
+```
+1. Download and istall python 3.9.1
+2. Clone this repository and navigate to the root
+3. Install all packages from file 'requirements' (pip install <package_name>)
+4. Run the script: 
+python save_webpage.py http://awebmaster.ru --output awebmaster_dist
+```
 
 ```
 usage: save_webpage.py [-h] [-o OUTPUT] [--version] [-q] [--insecure]
@@ -40,22 +55,4 @@ internal resource files. Transforms all internal resources so that they link
 to local files. Process css files exctracting new resource and converting
 url's. Possibility to replace javascript and html files using custom
 substitutions. Full Unicode/UTF-8 support.
-```
-
-# Command-line usage:
-
-Examples:
-
-```
-$ python save_webpage.py -h
-    you are reading this help message
-
-$ python save_webpage.py http://www.google.com
-    save google url page for offline reading, keep style untainted
-    the website and all its resource are saved in the 'output' folder
-
-$ python save_webpage.py http://gabrielecirulli.github.io/2048/ --output game
-    save dynamic page with Javascript example
-    the 2048 game can be played offline after being saved
-    the website and all its resource are saved in the 'game' folder
 ```
